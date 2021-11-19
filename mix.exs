@@ -21,7 +21,6 @@ defmodule Webscraper.MixProject do
     [
       mod: {Webscraper.Application, [:httpoison]},
       extra_applications: [:logger, :runtime_tools]
-
     ]
   end
 
@@ -46,7 +45,8 @@ defmodule Webscraper.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:httpoison, "~> 1.8"}
+      {:crawly, "~> 0.13.0"},
+      {:floki, "~> 0.26.0"}
     ]
   end
 
