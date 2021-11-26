@@ -22,7 +22,9 @@ defmodule PropertySiteCrawler do
       |> Floki.attribute("href")
       |> Enum.reject(fn x -> x == "/" || x == "#" end)
       |> Enum.filter(fn x -> String.contains?(x, "/property/") end)
+      |> IO.inspect(label: "Links that I want to scrape $$$$$$$$$")
 
+    # I need to find elements from page I've gone to ^
     next_requests =
       items
       |> Enum.map(fn x ->
