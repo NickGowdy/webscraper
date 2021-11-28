@@ -6,57 +6,32 @@ defmodule PropertySiteCrawler do
   def base_url(), do: "https://www.rightmove.co.uk/"
 
   @impl Crawly.Spider
-  def init(), do: [start_urls: ["https://www.rightmove.co.uk/site-map.html"]]
+  def init(), do: [start_urls: ["https://www.rightmove.co.uk/"]]
 
   @impl Crawly.Spider
   def parse_item(response) do
     # Parse response body to document
     {:ok, document} = Floki.parse_document(response.body)
 
-    # Create item (for pages where items exists)
-    items =
+    page_items =
       document
-      |> Floki.find("main#root")
-      |> Floki.find("section")
       |> Floki.find("a")
-      |> Floki.attribute("href")
-      |> Enum.reject(fn x -> x == "/" || x == "#" end)
-      |> Enum.filter(fn x -> String.contains?(x, "/property/") end)
-      |> IO.inspect(label: "Links that I want to scrape $$$$$$$$$")
+      |> Enum.map(fn x ->
+        %{
+          title: Floki.find(x, "a") |> Floki.attribute("href") |> Floki.text()
+        }
+      end)
 
     # I need to find elements from page I've gone to ^
     next_requests =
-      items
+      document
+      |> Floki.find("a")
+      |> Floki.attribute("href")
       |> Enum.map(fn x ->
         Crawly.Utils.build_absolute_url(x, base_url())
         |> Crawly.Utils.request_from_url()
       end)
 
-    %{items: items, requests: next_requests}
+    %{page_items: page_items, requests: next_requests}
   end
-
-  # result =
-  #   reponse.body
-  #   |> Floki.find("main#root")
-  #   |> Floki.find("section")
-  #   |> Floki.find("a")
-  #   |> Floki.attribute("href")
-
-  # result
-
-  # |> Map.new(fn e ->
-  #   IO.inspect(e, label: "ENTRY ")
-  #   %{link_url: e}
-  # end)
-
-  # requests =
-  #   Utils.build_absolute_urls(hrefs, base_url())
-  #   |> Utils.requests_from_urls()
-
-  # title = document |> Floki.find("h1.page-title-sm") |> Floki.text()
-
-  # %{
-  #   :requests => requests,
-  #   :items => [%{title: title, url: response.request_url}]
-  # }
 end
